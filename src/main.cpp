@@ -1,6 +1,7 @@
 
-#include "CLI/CLI11.hpp"
+#include "3rd_party/CLI/CLI.hpp"
 #include "rapidjson/document.h"
+#include "translator/translation_model.h"
 #include <cstdlib>
 #include <iostream>
 #include <list>
@@ -25,37 +26,29 @@ private:
   std::string modelJSON_; /// < A JSON file listing the inventory of models.
 };
 
-class TranslationModel;
-
 /// Manages models
 class ModelManager {
-  using Container = std::list;
-  using Ptr = std::shared_ptr;
+  using Model = marian::bergamot::TranslationModel;
 
 public:
   ModelManager(size_t maxModels) : maxModels_(maxModels) {}
 
-  bool loadModel(const TranslationModel::config &config) {
+  bool loadModel(const Model::Config &config) {
     if (models_.size() == maxModels_) {
       return false;
     }
-    models_.emplace(models_.end(), config);
+    models_.emplace(models_.end(), std::make_unique<Model>(config));
     return true;
   };
 
 private:
   size_t maxModels_{0};
-  Container<Ptr<TranslationModel>> models_;
+  std::list<std::shared_ptr<Model>> models_;
 
   struct Usage {
-    const TranslationModel *model{nullptr};
+    const Model *model{nullptr};
     size_t usage{0};
   };
-
-  std::priority_queue<Usage, decltype([](const Usage &a, const Usage &b) {
-                        return a.usage < b.usage;
-                      })>
-      accessLog_;
 };
 
 std::ostream &operator<<(std::ostream &out, const Config &config) {
@@ -64,7 +57,8 @@ std::ostream &operator<<(std::ostream &out, const Config &config) {
 }
 
 int main(int argc, char **argv) {
-  CLI::App app;
+  using App = CLI::App;
+  App app;
   Config config;
   app.add_option("-s,--source", config.source, "Source language")->required();
   app.add_option("-t,--target", config.target, "Target language")->required();
