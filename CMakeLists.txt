@@ -39,17 +39,6 @@ set(PROJECT_DESCRIPTION "Bergamot provides client-side translation on the local 
 set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
 set(PROJECT_LICENSE "GPL")
 
-set(IBUS_BUS_NAME "org.freedesktop.IBus.Bergamot")
-set(IBUS_COMMANDLINE "")
-set(IBUS_TEXTDOMAIN "bergamot-ime")
-set(IBUS_ICON "/usr/share/icons/bergamot.svg")
-set(IBUS_LAYOUT "us")
-set(IBUS_LANGUAGE "en")
-
-
-find_package(PkgConfig)
-PKG_CHECK_MODULES(GLIB2 REQUIRED glib-2.0)
-PKG_CHECK_MODULES(IBUS REQUIRED ibus-1.0)
 
 add_subdirectory(3rd_party)
 add_subdirectory(lemonade)
