@@ -25,13 +25,12 @@ int main(int argc, char **argv) {
   app.add_option("-t,--target", config.target, "Target language")->required();
   app.parse(argc, argv);
 
-  std::cout << config << std::endl;
   ModelInventory inventory(
       /*modelsJSON=*/"/home/jphilip/.config/lemonade/models.json",
       /*modelsDir=*/"/home/jphilip/.lemonade/models");
 
   std::optional<ModelInventory::ModelInfo> modelInfo =
-      inventory.query("English", "German");
+      inventory.query(config.source, config.target);
 
   if (modelInfo) {
     ModelInventory::ModelInfo m = modelInfo.value();

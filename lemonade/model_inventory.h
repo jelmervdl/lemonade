@@ -29,7 +29,7 @@ public:
 
   ModelInventory(const std::string &modelsJSON, const std::string &modelsDir)
       : modelsJSON_(modelsJSON), modelsDir_(modelsDir) {
-    std::cout << modelsJSON_ << std::endl;
+    // std::cout << modelsJSON_ << std::endl;
 
     inventory_ = readInventoryFromDisk();
 
@@ -40,11 +40,11 @@ public:
       const rapidjson::Value &entry = models[i];
       // std::cout << i << " " << entry.IsObject() << std::endl;
       // std::cout << entry.HasMember("shortName") << std::endl;
-      std::cout << "Parsing " << entry["name"].GetString() << std::endl;
+      // std::cout << "Parsing " << entry["name"].GetString() << std::endl;
       std::string type = entry["type"].GetString();
       if (type == "tiny") {
-        std::cout << "Inserting " << entry["src"].GetString() << "-"
-                  << entry["trg"].GetString() << std::endl;
+        // std::cout << "Inserting " << entry["src"].GetString() << "-"
+        //           << entry["trg"].GetString() << std::endl;
         LanguageDirection direction =
             std::make_pair(entry["src"].GetString(), entry["trg"].GetString());
 

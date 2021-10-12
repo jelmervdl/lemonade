@@ -12,7 +12,6 @@ HOME = os.environ.get("HOME")
 CACHE_DIR = os.environ.get("XDG_CACHE_HOME", os.path.join(HOME, ".cache"))
 CONFIG_DIR = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
 
-
 @dataclass
 class Config:
     url : str = "https://translatelocally.com/models.json"
