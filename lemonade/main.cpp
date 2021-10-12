@@ -1,6 +1,7 @@
 #include "3rd_party/CLI/CLI.hpp"
 #include "translator/translation_model.h"
 #include <list>
+#include <optional>
 #include <string>
 
 #include "model_inventory.h"
@@ -29,6 +30,13 @@ int main(int argc, char **argv) {
       /*modelsJSON=*/"/home/jphilip/.config/lemonade/models.json",
       /*modelsDir=*/"/home/jphilip/.lemonade/models");
 
-  std::cout << "End of program! " << std::endl;
+  std::optional<ModelInventory::ModelInfo> modelInfo =
+      inventory.query("English", "German");
+
+  if (modelInfo) {
+    ModelInventory::ModelInfo m = modelInfo.value();
+    std::cout << m.name << std::endl;
+  }
+
   return 0;
 }
