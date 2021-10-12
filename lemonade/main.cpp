@@ -63,6 +63,9 @@ int main(int argc, char **argv) {
   app.add_option("-s,--source", config.source, "Source language")->required();
   app.add_option("-t,--target", config.target, "Target language")->required();
   app.parse(argc, argv);
+
+  inventory = ModelInventory();
+
   std::cout << config << std::endl;
   return 0;
 }

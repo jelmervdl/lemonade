@@ -1,0 +1,7 @@
+build/
+
+.*sw[op]
+
+ibus/bergamot.xml
+ibus/application.h
+
