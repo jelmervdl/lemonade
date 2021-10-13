@@ -1,3 +1,4 @@
+#pragma once
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
@@ -19,13 +20,6 @@ std::string asString(const Document &document) {
   document.Accept(writer);
   return buffer.GetString();
 }
-
-/*
-template <>
-void fromJSON<Response>(const std::string &json, Response &response) {}
-template <> std::string toJSON<Response>(const Response &response) {}
-
-*/
 
 #define INSERT(document, obj, attribute)                                       \
   do {                                                                         \
