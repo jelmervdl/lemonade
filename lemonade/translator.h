@@ -3,6 +3,7 @@
 #include <string>
 
 #include "3rd_party/CLI/CLI.hpp"
+#include "3rd_party/Simple-WebSocket-Server/client_ws.hpp"
 #include "3rd_party/Simple-WebSocket-Server/server_ws.hpp"
 
 #include "data.h"
@@ -90,7 +91,7 @@ public:
         auto sendStream = std::make_shared<WSServer::OutMessage>();
         // Translate
         // timer::Timer timer;
-        *sendStream << outputText << std::endl;
+        *sendStream << outputText;
         // if (!quiet)
         //   LOG(info, "Translation took: {:.5f}s", timer.elapsed());
 
@@ -124,4 +125,71 @@ public:
 private:
   WSServer server_;
   Translator translator_;
+};
+
+class TranslationClient {
+public:
+  TranslationClient(const std::string &addr) : client_(addr) {}
+
+  void run() {
+    client_.on_message = [](std::shared_ptr<WsClient::Connection> connection,
+                            std::shared_ptr<WsClient::InMessage> in_message) {
+      std::cout << "Client: Message received: \"" << in_message->string()
+                << "\"" << std::endl;
+
+      // std::cout << "Client: Sending close connection" << std::endl;
+      // connection->send_close(1000);
+    };
+
+    client_.on_open = [](std::shared_ptr<WsClient::Connection> connection) {
+      std::cout << "Client: Opened connection" << std::endl;
+
+      std::string out_message("Hello");
+      std::cout << "Client: Sending message: \"" << out_message << "\""
+                << std::endl;
+
+      connection->send(out_message);
+    };
+
+    client_.on_close = [](std::shared_ptr<WsClient::Connection> /*connection*/,
+                          int status, const std::string & /*reason*/) {
+      std::cout << "Client: Closed connection with status code " << status
+                << std::endl;
+    };
+
+    // See
+    // http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html,
+    // Error Codes for error code meanings
+    client_.on_error = [](std::shared_ptr<WsClient::Connection> /*connection*/,
+                          const SimpleWeb::error_code &ec) {
+      std::cout << "Client: Error: " << ec
+                << ", error message: " << ec.message() << std::endl;
+    };
+
+    // Leave start somewhere.
+    std::thread listeningThread([this]() { client_.start(); });
+
+    // Mainloop
+    std::string line;
+    while (std::getline(std::cin, line)) {
+      client_.send_message(line);
+    }
+
+    listeningThread.join();
+  }
+
+private:
+  // Warning, inheritance is not meant for code-reuse. But well, I don't follow
+  // rules.
+  class WsClient : public SimpleWeb::SocketClient<SimpleWeb::WS> {
+  public:
+    WsClient(const std::string &addr)
+        : SimpleWeb::SocketClient<SimpleWeb::WS>(addr) {}
+    void send_message(std::string msg_to_send) {
+      SimpleWeb::LockGuard lock(connection_mutex);
+      connection->send(msg_to_send);
+    }
+  };
+
+  WsClient client_;
 };
