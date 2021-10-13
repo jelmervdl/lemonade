@@ -1,4 +1,7 @@
 #pragma once
+#include "translator/translation_model.h"
+#include <list>
+#include <memory>
 
 /// Manages models
 class ModelManager {
@@ -7,13 +10,9 @@ class ModelManager {
 public:
   ModelManager(size_t maxModels) : maxModels_(maxModels) {}
 
-  bool loadModel(const Model::Config &config) {
-    if (models_.size() == maxModels_) {
-      return false;
-    }
-    models_.emplace(models_.end(), std::make_unique<Model>(config));
-    return true;
-  };
+  void shareModel(std::shared_ptr<Model> model) {
+    models_.emplace(models_.end(), model);
+  }
 
 private:
   size_t maxModels_{0};
