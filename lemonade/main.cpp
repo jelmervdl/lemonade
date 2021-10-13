@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
   if (modelInfo) {
     ModelInventory::ModelInfo m = modelInfo.value();
     std::cout << m.name << std::endl;
+    std::cout << inventory.configFile(m) << std::endl;
   }
 
   std::stringstream readStream;

@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass
 import os
 import tarfile
+from urllib.parse import urlparse
 
 APP = "lemonade"
 HOME = os.environ.get("HOME")
@@ -60,6 +61,12 @@ def download_archive(url, save_location, force_download=False):
                 handle.write(block)
 
 
+def hardCodeFpaths(url):
+    o = urlparse(url)
+    fname = os.path.basename(o.path) # something tar.gz.
+    fname_without_extension = fname.replace(".tar.gz", "")
+    return fname_without_extension
+
 
 
 if __name__ == '__main__':
@@ -70,11 +77,11 @@ if __name__ == '__main__':
         model_archive ='{}.tar.gz'.format(model["shortName"])
         save_location = os.path.join(config.archive_dir, model_archive)
         download_archive(model["url"], save_location)
+        fprefix = hardCodeFpaths(model["url"])
         with tarfile.open(save_location) as model_archive:
             model_archive.extractall(config.models_dir)
-            print(model)
-
-
-
-
+            model_dir = os.path.join(config.models_dir, fprefix)
+            link = os.path.join(config.models_dir, model["code"])
+            os.symlink(model_dir, link)
+            print(model, model_dir, link)
 

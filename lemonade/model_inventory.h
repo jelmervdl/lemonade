@@ -20,6 +20,7 @@ public:
   struct ModelInfo {
     std::string name;
     std::string type;
+    std::string code;
     LanguageDirection direction;
   };
 
@@ -27,6 +28,8 @@ public:
 
   std::optional<ModelInfo> query(const std::string &source,
                                  const std::string &target) const;
+
+  std::string configFile(const ModelInfo &modelInfo);
 
 private:
   struct Hash {
