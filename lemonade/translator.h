@@ -143,12 +143,6 @@ public:
 
     client_.on_open = [](std::shared_ptr<WsClient::Connection> connection) {
       std::cout << "Client: Opened connection" << std::endl;
-
-      std::string out_message("Hello");
-      std::cout << "Client: Sending message: \"" << out_message << "\""
-                << std::endl;
-
-      connection->send(out_message);
     };
 
     client_.on_close = [](std::shared_ptr<WsClient::Connection> /*connection*/,
