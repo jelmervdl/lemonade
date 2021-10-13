@@ -9,6 +9,7 @@
 #include "model_inventory.h"
 #include "model_manager.h"
 
+#include "translator/parser.h"
 #include "translator/service.h"
 #include "translator/translation_model.h"
 
@@ -40,16 +41,37 @@ int main(int argc, char **argv) {
   std::optional<ModelInventory::ModelInfo> modelInfo =
       inventory.query(config.source, config.target);
 
+  using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
+
+  Model model;
   if (modelInfo) {
     ModelInventory::ModelInfo m = modelInfo.value();
-    std::cout << m.name << std::endl;
-    std::cout << inventory.configFile(m) << std::endl;
+    auto modelConfig =
+        marian::bergamot::parseOptionsFromFilePath(inventory.configFile(m));
+    model = service.createCompatibleModel(modelConfig);
+
+    std::stringstream readStream;
+    readStream << std::cin.rdbuf();
+    std::string source = readStream.str();
+
+    using marian::bergamot::Response;
+    using marian::bergamot::ResponseOptions;
+
+    std::promise<Response> responsePromise;
+    auto responseFuture = responsePromise.get_future();
+
+    auto callback = [&responsePromise](Response &&response) {
+      responsePromise.set_value(std::move(response));
+    };
+
+    ResponseOptions responseOptions;
+    service.translate(model, std::move(source), callback, responseOptions);
+
+    responseFuture.wait();
+    Response response = std::move(responseFuture.get());
+
+    std::cout << response.target.text << "\n";
   }
-
-  std::stringstream readStream;
-  readStream << std::cin.rdbuf();
-
-  std::cout << readStream.str();
 
   return 0;
 }

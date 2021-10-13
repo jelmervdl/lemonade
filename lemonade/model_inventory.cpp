@@ -73,6 +73,7 @@ rapidjson::Document ModelInventory::readInventoryFromDisk() {
 }
 
 std::string ModelInventory::configFile(const ModelInfo &modelInfo) {
-  std::string configFilePath = fmt::format("{}/{}", modelsDir_, modelInfo.code);
+  std::string configFilePath =
+      fmt::format("{}/{}/config.bergamot.yml", modelsDir_, modelInfo.code);
   return configFilePath;
 }

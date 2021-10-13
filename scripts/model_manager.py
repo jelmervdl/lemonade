@@ -3,6 +3,7 @@ import requests
 from argparse import ArgumentParser
 import typing
 import json
+import yaml
 from dataclasses import dataclass
 import os
 import tarfile
@@ -68,6 +69,28 @@ def hardCodeFpaths(url):
     return fname_without_extension
 
 
+def patch_marian_for_bergamot(fpath, output_path, quality=False):
+    data = None
+    with open(fpath) as fp:
+        data = yaml.load(fp, Loader=yaml.FullLoader)
+
+    data.update({
+        'ssplit-prefix-file': '',
+        'ssplit-mode': 'sentence',
+        'max-length-break': 128,
+        'mini-batch-words': 1024,
+    })
+
+    if quality:
+        data.update({
+            'quality': args.quality, 
+            'skip-cost': False
+        })
+
+    with open(output_path, 'w') as ofp:
+        print(yaml.dump(data, sort_keys=False), file=ofp)
+
+
 
 if __name__ == '__main__':
     parser = ArgumentParser("Model manager to download models for bergamot")
@@ -82,6 +105,11 @@ if __name__ == '__main__':
             model_archive.extractall(config.models_dir)
             model_dir = os.path.join(config.models_dir, fprefix)
             link = os.path.join(config.models_dir, model["code"])
-            os.symlink(model_dir, link)
+            if not os.path.exists(link):
+                os.symlink(model_dir, link)
+
+            config_path = os.path.join(link, "config.intgemm8bitalpha.yml")
+            bergamot_config_path = os.path.join(link, "config.bergamot.yml")
+            patch_marian_for_bergamot(config_path, bergamot_config_path)
             print(model, model_dir, link)
 
