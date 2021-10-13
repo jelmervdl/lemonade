@@ -6,6 +6,7 @@
 
 #include "3rd_party/CLI/CLI.hpp"
 
+#include "json_interop.h"
 #include "model_inventory.h"
 #include "model_manager.h"
 
@@ -18,14 +19,7 @@ struct Config {
   std::string target;
 };
 
-int main(int argc, char **argv) {
-  using App = CLI::App;
-  App app;
-  Config config;
-  app.add_option("-s,--source", config.source, "Source language")->required();
-  app.add_option("-t,--target", config.target, "Target language")->required();
-  app.parse(argc, argv);
-
+void run(const Config &config) {
   ModelManager manager(/*maxModels=*/2);
 
   using Service = marian::bergamot::AsyncService;
@@ -70,8 +64,17 @@ int main(int argc, char **argv) {
     responseFuture.wait();
     Response response = std::move(responseFuture.get());
 
-    std::cout << response.target.text << "\n";
+    std::cout << toJSON(response) << "\n";
   }
+}
 
+int main(int argc, char **argv) {
+  using App = CLI::App;
+  App app;
+  Config config;
+  app.add_option("-s,--source", config.source, "Source language")->required();
+  app.add_option("-t,--target", config.target, "Target language")->required();
+  app.parse(argc, argv);
+  run(config);
   return 0;
 }
