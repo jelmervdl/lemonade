@@ -1,8 +1,8 @@
 
-set(IBUS_BUS_NAME "org.freedesktop.IBus.Bergamot")
+set(IBUS_BUS_NAME "org.freedesktop.IBus.Lemonade")
 set(IBUS_COMMANDLINE "")
-set(IBUS_TEXTDOMAIN "bergamot-ime")
-set(IBUS_ICON "/usr/share/icons/bergamot.svg")
+set(IBUS_TEXTDOMAIN "lemonade-ime")
+set(IBUS_ICON "/usr/share/icons/lemonade.svg")
 set(IBUS_LAYOUT "us")
 set(IBUS_LANGUAGE "en")
 
@@ -11,8 +11,8 @@ find_package(PkgConfig)
 PKG_CHECK_MODULES(GLIB2 REQUIRED glib-2.0)
 PKG_CHECK_MODULES(IBUS REQUIRED ibus-1.0)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/bergamot.xml.in
-               ${CMAKE_CURRENT_BINARY_DIR}/bergamot.xml)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lemonade.xml.in
+               ${CMAKE_CURRENT_BINARY_DIR}/lemonade.xml)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/application.h.in
         ${CMAKE_CURRENT_SOURCE_DIR}/application.h @ONLY)
