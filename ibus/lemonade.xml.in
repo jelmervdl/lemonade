@@ -21,7 +21,7 @@
                         <longname>${PROJECT_LONGNAME}</longname>
                         <description>${PROJECT_DESCRIPTION}</description>
 			<rank>99</rank>
-                                <!--<symbol>&#x62FC;</symbol>-->
+                        <symbol>&#x1F34B;</symbol>
 			<setup>/usr/lib/ibus/ibus-setup-pinyin pinyin</setup>
 		</engine>
 	</engines>
