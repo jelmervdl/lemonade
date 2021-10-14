@@ -10,6 +10,8 @@
 #include "model_manager.h"
 #include "translator/definitions.h"
 
+#include "fmt/core.h"
+#include "translator/byte_array_util.h"
 #include "translator/parser.h"
 #include "translator/service.h"
 #include "translator/translation_model.h"
@@ -19,8 +21,7 @@ class Translator {
 public:
   Translator(size_t maxModels, size_t numWorkers)
       : manager_(maxModels), config_{numWorkers}, service_(config_),
-        inventory_(/*modelsJSON=*/"/home/jerin/.config/lemonade/models.json",
-                   /*modelsDir=*/"/home/jerin/.lemonade/models") {}
+        inventory_(modelsJSON(), modelsDir()) {}
 
   void translate(std::string input, const std::string &source,
                  const std::string &target,
@@ -33,7 +34,10 @@ public:
       ModelInventory::ModelInfo m = modelInfo.value();
       auto modelConfig =
           marian::bergamot::parseOptionsFromFilePath(inventory_.configFile(m));
-      model = service_.createCompatibleModel(modelConfig);
+      marian::bergamot::MemoryBundle memoryBundle =
+          marian::bergamot::getMemoryBundleFromConfig(modelConfig);
+      model =
+          service_.createCompatibleModel(modelConfig, std::move(memoryBundle));
 
       marian::bergamot::ResponseOptions responseOptions;
       service_.translate(model, std::move(input), callback, responseOptions);
@@ -57,6 +61,19 @@ public:
   }
 
 private:
+  static std::string modelsJSON() {
+    return fmt::format("{}/.config/lemonade/models.json", home());
+  }
+
+  static std::string modelsDir() {
+    return fmt::format("{}/.lemonade/models", home());
+  }
+
+  static std::string home() {
+    const char *envHome = std::getenv("HOME");
+    return std::string(envHome);
+  }
+
   using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
   using Service = marian::bergamot::AsyncService;
 
