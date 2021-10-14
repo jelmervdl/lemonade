@@ -1,83 +1,134 @@
-#include "engine-compat.h"
+#include "lemonade_engine.h"
+#include <cstring>
 
 typedef struct _IBusLemonadeEngine IBusLemonadeEngine;
 typedef struct _IBusLemonadeEngineClass IBusLemonadeEngineClass;
-
-struct _IBusLemonadeEngine {
-  IBusEngine parent;
-  GString *preedit;
-  gint cursor_pos;
-  IBusLookupTable *table;
-};
 
 struct _IBusLemonadeEngineClass {
   IBusEngineClass parent;
 };
 
+struct _IBusLemonadeEngine {
+  IBusEngine parent;
+
+  /* members */
+  Engine *engine;
+};
+
 /* functions prototype */
 static void ibus_lemonade_engine_class_init(IBusLemonadeEngineClass *klass);
-static void ibus_lemonade_engine_init(IBusLemonadeEngine *engine);
-static void ibus_lemonade_engine_destroy(IBusLemonadeEngine *engine);
+static void ibus_lemonade_engine_init(IBusLemonadeEngine *lemonade);
+static GObject *
+ibus_lemonade_engine_constructor(GType type, guint n_construct_params,
+                                 GObjectConstructParam *construct_params);
+
+static void ibus_lemonade_engine_destroy(IBusLemonadeEngine *lemonade);
 static gboolean ibus_lemonade_engine_process_key_event(IBusEngine *engine,
                                                        guint keyval,
                                                        guint keycode,
                                                        guint modifiers);
 static void ibus_lemonade_engine_focus_in(IBusEngine *engine);
 static void ibus_lemonade_engine_focus_out(IBusEngine *engine);
+#if IBUS_CHECK_VERSION(1, 5, 4)
+static void ibus_lemonade_engine_set_content_type(IBusEngine *engine,
+                                                  guint purpose, guint hints);
+#endif
 static void ibus_lemonade_engine_reset(IBusEngine *engine);
 static void ibus_lemonade_engine_enable(IBusEngine *engine);
 static void ibus_lemonade_engine_disable(IBusEngine *engine);
-static void ibus_engine_set_cursor_location(IBusEngine *engine, gint x, gint y,
-                                            gint w, gint h);
-static void ibus_lemonade_engine_set_capabilities(IBusEngine *engine,
-                                                  guint caps);
+
+#if 0
+static void     ibus_engine_set_cursor_location (IBusEngine             *engine,
+                                                 gint                    x,
+                                                 gint                    y,
+                                                 gint                    w,
+                                                 gint                    h);
+static void     ibus_lemonade_engine_set_capabilities
+                                                (IBusEngine             *engine,
+                                                 guint                   caps);
+#endif
+
 static void ibus_lemonade_engine_page_up(IBusEngine *engine);
 static void ibus_lemonade_engine_page_down(IBusEngine *engine);
 static void ibus_lemonade_engine_cursor_up(IBusEngine *engine);
 static void ibus_lemonade_engine_cursor_down(IBusEngine *engine);
-static void ibus_lemonade_property_activate(IBusEngine *engine,
-                                            const gchar *prop_name,
-                                            gint prop_state);
-static void ibus_lemonade_engine_property_show(IBusEngine *engine,
-                                               const gchar *prop_name);
-static void ibus_lemonade_engine_property_hide(IBusEngine *engine,
-                                               const gchar *prop_name);
-
-static void ibus_lemonade_engine_commit_string(IBusLemonadeEngine *lemonade,
-                                               const gchar *string);
-static void ibus_lemonade_engine_update(IBusLemonadeEngine *lemonade);
+static void ibus_lemonade_engine_property_activate(IBusEngine *engine,
+                                                   const gchar *prop_name,
+                                                   guint prop_state);
+static void ibus_lemonade_engine_candidate_clicked(IBusEngine *engine,
+                                                   guint index, guint button,
+                                                   guint state);
+#if 0
+static void ibus_lemonade_engine_property_show    (IBusEngine             *engine,
+                                                 const gchar            *prop_name);
+static void ibus_lemonade_engine_property_hide    (IBusEngine             *engine,
+                                                 const gchar            *prop_name);
+#endif
 
 G_DEFINE_TYPE(IBusLemonadeEngine, ibus_lemonade_engine, IBUS_TYPE_ENGINE)
 
 static void ibus_lemonade_engine_class_init(IBusLemonadeEngineClass *klass) {
+  GObjectClass *object_class = G_OBJECT_CLASS(klass);
   IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS(klass);
   IBusEngineClass *engine_class = IBUS_ENGINE_CLASS(klass);
 
+  object_class->constructor = ibus_lemonade_engine_constructor;
   ibus_object_class->destroy =
       (IBusObjectDestroyFunc)ibus_lemonade_engine_destroy;
 
   engine_class->process_key_event = ibus_lemonade_engine_process_key_event;
+
+  engine_class->reset = ibus_lemonade_engine_reset;
+  engine_class->enable = ibus_lemonade_engine_enable;
+  engine_class->disable = ibus_lemonade_engine_disable;
+
+  engine_class->focus_in = ibus_lemonade_engine_focus_in;
+  engine_class->focus_out = ibus_lemonade_engine_focus_out;
+
+#if IBUS_CHECK_VERSION(1, 5, 4)
+  engine_class->set_content_type = ibus_lemonade_engine_set_content_type;
+#endif
+
+  engine_class->page_up = ibus_lemonade_engine_page_up;
+  engine_class->page_down = ibus_lemonade_engine_page_down;
+
+  engine_class->cursor_up = ibus_lemonade_engine_cursor_up;
+  engine_class->cursor_down = ibus_lemonade_engine_cursor_down;
+
+  engine_class->property_activate = ibus_lemonade_engine_property_activate;
+
+  engine_class->candidate_clicked = ibus_lemonade_engine_candidate_clicked;
 }
 
 static void ibus_lemonade_engine_init(IBusLemonadeEngine *lemonade) {
-  lemonade->preedit = g_string_new("");
-  lemonade->cursor_pos = 0;
+  if (g_object_is_floating(lemonade))
+    g_object_ref_sink(lemonade); // make engine sink
+}
 
-  lemonade->table = ibus_lookup_table_new(9, 0, TRUE, TRUE);
-  g_object_ref_sink(lemonade->table);
+static GObject *
+ibus_lemonade_engine_constructor(GType type, guint n_construct_params,
+                                 GObjectConstructParam *construct_params) {
+  IBusLemonadeEngine *engine;
+  const gchar *name;
+
+  engine =
+      (IBusLemonadeEngine *)G_OBJECT_CLASS(ibus_lemonade_engine_parent_class)
+          ->constructor(type, n_construct_params, construct_params);
+  name = ibus_engine_get_name((IBusEngine *)engine);
+
+  if (name) {
+    if (std::strcmp(name, "liblemonade") == 0 ||
+        std::strcmp(name, "liblemonade-debug") == 0) {
+      engine->engine = new LemonadeEngine(IBUS_ENGINE(engine));
+    }
+  } else {
+    engine->engine = new LemonadeEngine(IBUS_ENGINE(engine));
+  }
+  return (GObject *)engine;
 }
 
 static void ibus_lemonade_engine_destroy(IBusLemonadeEngine *lemonade) {
-  if (lemonade->preedit) {
-    g_string_free(lemonade->preedit, TRUE);
-    lemonade->preedit = NULL;
-  }
-
-  if (lemonade->table) {
-    g_object_unref(lemonade->table);
-    lemonade->table = NULL;
-  }
-
+  delete lemonade->engine;
   ((IBusObjectClass *)ibus_lemonade_engine_parent_class)
       ->destroy((IBusObject *)lemonade);
 }
@@ -86,112 +137,72 @@ static gboolean ibus_lemonade_engine_process_key_event(IBusEngine *engine,
                                                        guint keyval,
                                                        guint keycode,
                                                        guint modifiers) {
-  IBusText *text;
   IBusLemonadeEngine *lemonade = (IBusLemonadeEngine *)engine;
-
-  if (modifiers & IBUS_RELEASE_MASK)
-    return FALSE;
-
-  modifiers &= (IBUS_CONTROL_MASK | IBUS_MOD1_MASK);
-
-  if (modifiers == IBUS_CONTROL_MASK && keyval == IBUS_s) {
-    // ibus_lemonade_engine_update_lookup_table(lemonade);
-    return TRUE;
-  }
-
-  if (modifiers != 0) {
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-    else
-      return TRUE;
-  }
-
-  switch (keyval) {
-  case IBUS_space:
-    g_string_append(lemonade->preedit, " ");
-    // return ibus_lemonade_engine_commit_preedit(lemonade);
-    return TRUE;
-  case IBUS_Return:
-    // return ibus_lemonade_engine_commit_preedit(lemonade);
-    return TRUE;
-
-  case IBUS_Escape:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-
-    g_string_assign(lemonade->preedit, "");
-    lemonade->cursor_pos = 0;
-    ibus_lemonade_engine_update(lemonade);
-    return TRUE;
-
-  case IBUS_Left:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-    if (lemonade->cursor_pos > 0) {
-      lemonade->cursor_pos--;
-      ibus_lemonade_engine_update(lemonade);
-    }
-    return TRUE;
-
-  case IBUS_Right:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-    if (lemonade->cursor_pos < lemonade->preedit->len) {
-      lemonade->cursor_pos++;
-      ibus_lemonade_engine_update(lemonade);
-    }
-    return TRUE;
-
-  case IBUS_Up:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-    if (lemonade->cursor_pos != 0) {
-      lemonade->cursor_pos = 0;
-      ibus_lemonade_engine_update(lemonade);
-    }
-    return TRUE;
-
-  case IBUS_Down:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-
-    if (lemonade->cursor_pos != lemonade->preedit->len) {
-      lemonade->cursor_pos = lemonade->preedit->len;
-      ibus_lemonade_engine_update(lemonade);
-    }
-
-    return TRUE;
-
-  case IBUS_BackSpace:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-    if (lemonade->cursor_pos > 0) {
-      lemonade->cursor_pos--;
-      g_string_erase(lemonade->preedit, lemonade->cursor_pos, 1);
-      ibus_lemonade_engine_update(lemonade);
-    }
-    return TRUE;
-
-  case IBUS_Delete:
-    if (lemonade->preedit->len == 0)
-      return FALSE;
-    if (lemonade->cursor_pos < lemonade->preedit->len) {
-      g_string_erase(lemonade->preedit, lemonade->cursor_pos, 1);
-      ibus_lemonade_engine_update(lemonade);
-    }
-    return TRUE;
-  }
-
-  if (is_alpha(keyval)) {
-    g_string_insert_c(lemonade->preedit, lemonade->cursor_pos, keyval);
-
-    lemonade->cursor_pos++;
-    ibus_lemonade_engine_update(lemonade);
-
-    return TRUE;
-  }
-
-  return FALSE;
+  return lemonade->engine->processKeyEvent(keyval, keycode, modifiers);
 }
 
-static void ibus_lemonade_engine_update(IBusLemonadeEngine *lemonade) {}
+#if IBUS_CHECK_VERSION(1, 5, 4)
+static void ibus_lemonade_engine_set_content_type(IBusEngine *engine,
+                                                  guint purpose, guint hints) {
+  IBusLemonadeEngine *lemonade = (IBusLemonadeEngine *)engine;
+  return lemonade->engine->setContentType(purpose, hints);
+}
+#endif
+
+static void ibus_lemonade_engine_property_activate(IBusEngine *engine,
+                                                   const gchar *prop_name,
+                                                   guint prop_state) {
+  IBusLemonadeEngine *lemonade = (IBusLemonadeEngine *)engine;
+  lemonade->engine->propertyActivate(prop_name, prop_state);
+}
+static void ibus_lemonade_engine_candidate_clicked(IBusEngine *engine,
+                                                   guint index, guint button,
+                                                   guint state) {
+  IBusLemonadeEngine *lemonade = (IBusLemonadeEngine *)engine;
+  lemonade->engine->candidateClicked(index, button, state);
+}
+
+#define FUNCTION(name, Name)                                                   \
+  static void ibus_lemonade_engine_##name(IBusEngine *engine) {                \
+    IBusLemonadeEngine *lemonade = (IBusLemonadeEngine *)engine;               \
+    lemonade->engine->Name();                                                  \
+    ((IBusEngineClass *)ibus_lemonade_engine_parent_class)->name(engine);      \
+  }
+FUNCTION(focus_in, focusIn)
+FUNCTION(focus_out, focusOut)
+FUNCTION(reset, reset)
+FUNCTION(enable, enable)
+FUNCTION(disable, disable)
+FUNCTION(page_up, pageUp)
+FUNCTION(page_down, pageDown)
+FUNCTION(cursor_up, cursorUp)
+FUNCTION(cursor_down, cursorDown)
+#undef FUNCTION
+
+Engine::Engine(IBusEngine *engine) : m_engine(engine) {
+#if IBUS_CHECK_VERSION(1, 5, 4)
+  m_input_purpose = IBUS_INPUT_PURPOSE_FREE_FORM;
+#endif
+}
+
+gboolean Engine::contentIsPassword() {
+#if IBUS_CHECK_VERSION(1, 5, 4)
+  return IBUS_INPUT_PURPOSE_PASSWORD == m_input_purpose;
+#else
+  return FALSE;
+#endif
+}
+
+void Engine::focusOut(void) {
+#if IBUS_CHECK_VERSION(1, 5, 4)
+  m_input_purpose = IBUS_INPUT_PURPOSE_FREE_FORM;
+#endif
+}
+
+#if IBUS_CHECK_VERSION(1, 5, 4)
+void Engine::setContentType(guint purpose, guint hints) {
+  m_input_purpose = (IBusInputPurpose)purpose;
+}
+#endif
+
+Engine::~Engine(void) {}
