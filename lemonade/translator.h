@@ -10,6 +10,7 @@
 #include "model_manager.h"
 #include "translator/definitions.h"
 
+#include "common/timer.h"
 #include "fmt/core.h"
 #include "translator/byte_array_util.h"
 #include "translator/parser.h"
@@ -29,15 +30,27 @@ public:
     std::optional<ModelInventory::ModelInfo> modelInfo =
         inventory_.query(source, target);
 
-    Model model;
     if (modelInfo) {
       ModelInventory::ModelInfo m = modelInfo.value();
-      auto modelConfig =
-          marian::bergamot::parseOptionsFromFilePath(inventory_.configFile(m));
-      marian::bergamot::MemoryBundle memoryBundle =
-          marian::bergamot::getMemoryBundleFromConfig(modelConfig);
-      model =
-          service_.createCompatibleModel(modelConfig, std::move(memoryBundle));
+      Model model = manager_.lookup(m.code);
+      if (!model) {
+        auto modelConfig = marian::bergamot::parseOptionsFromFilePath(
+            inventory_.configFile(m));
+
+        // FIXME
+        modelConfig->set("workspace", 128);
+
+        marian::timer::Timer timer;
+        marian::bergamot::MemoryBundle memoryBundle =
+            marian::bergamot::getMemoryBundleFromConfig(modelConfig);
+        model = service_.createCompatibleModel(modelConfig,
+                                               std::move(memoryBundle));
+
+        manager_.cacheModel(m.code, model);
+
+        std::cout << fmt::format("Model building took {} seconds.",
+                                 timer.elapsed());
+      }
 
       marian::bergamot::ResponseOptions responseOptions;
       service_.translate(model, std::move(input), callback, responseOptions);
