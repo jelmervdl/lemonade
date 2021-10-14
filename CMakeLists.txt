@@ -32,16 +32,25 @@ message(STATUS "Project version: ${PROJECT_VERSION_STRING_FULL}")
 
 
 set(AUTHOR "Jerin Philip <jerinphilip@live.in>")
+set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
 
-set(PROJECT_SHORTNAME "bergamot")
-set(PROJECT_LONGNAME "Bergamot")
-set(PROJECT_DESCRIPTION "Bergamot provides client-side translation on the local machine.")
+set(PROJECT_SHORTNAME "lemonade")
+set(PROJECT_LONGNAME "Lemonade")
+set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
 set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
 set(PROJECT_LICENSE "GPL")
 
+if(UNIX)
+include(GNUInstallDirs)
 
 add_subdirectory(3rd_party)
 add_subdirectory(lemonade)
 add_subdirectory(ibus)
 
+install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
+install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
+ # install(FILES ${CMAKE_SOURCE_DIR}/logo/lemonade_logo.png DESTINATION share/icons)
+ # install(FILES ${CMAKE_SOURCE_DIR}/logo/lemonade_logo.svg DESTINATION share/icons)
+endif(UNIX)
 

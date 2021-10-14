@@ -16,7 +16,7 @@ public:
     g_object_ref_sink(factory);
 
     ibus_factory_add_engine(factory, "@IBUS_ENGINE_NAME@",
-                            IBUS_TYPE_BERGAMOT_ENGINE);
+                            IBUS_TYPE_LEMONADE_ENGINE);
 
     if (ibus) {
       ibus_bus_request_name(bus, "@IBUS_BUS_NAME@", 0);

@@ -19,8 +19,8 @@ class Translator {
 public:
   Translator(size_t maxModels, size_t numWorkers)
       : manager_(maxModels), config_{numWorkers}, service_(config_),
-        inventory_(/*modelsJSON=*/"/home/jphilip/.config/lemonade/models.json",
-                   /*modelsDir=*/"/home/jphilip/.lemonade/models") {}
+        inventory_(/*modelsJSON=*/"/home/jerin/.config/lemonade/models.json",
+                   /*modelsDir=*/"/home/jerin/.lemonade/models") {}
 
   void translate(std::string input, const std::string &source,
                  const std::string &target,

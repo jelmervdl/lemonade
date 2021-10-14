@@ -17,12 +17,13 @@ target_link_libraries(lemonade PUBLIC bergamot-translator marian fmt::fmt ${CMAK
 target_include_directories(lemonade PRIVATE ${INCLUDE_DIRECTORIES})
 
 
-
 add_executable(lemonade-bin main.cpp )
-target_link_libraries(lemonade-bin PRIVATE lemonade simple-websocket-server)
+target_link_libraries(lemonade-bin PRIVATE lemonade)
 target_include_directories(lemonade-bin PRIVATE ${INCLUDE_DIRECTORIES})
+set_target_properties(lemonade-bin PROPERTIES OUTPUT_NAME lemonade)
 
-add_executable(lemonade-server server.cpp )
+
+add_executable(lemonade-server server.cpp)
 target_link_libraries(lemonade-server PRIVATE lemonade simple-websocket-server)
 target_include_directories(lemonade-server PRIVATE ${INCLUDE_DIRECTORIES})
 
