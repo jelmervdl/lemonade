@@ -1,21 +1,11 @@
 #pragma once
-#include <optional>
-#include <string>
-
-#include "3rd_party/CLI/CLI.hpp"
-
-#include "data.h"
-#include "json_interop.h"
-#include "model_inventory.h"
-#include "model_manager.h"
-#include "translator/definitions.h"
-
-#include "common/timer.h"
-#include "fmt/core.h"
-#include "translator/byte_array_util.h"
-#include "translator/parser.h"
-#include "translator/service.h"
-#include "translator/translation_model.h"
+#include "model_inventory.h"              // for ModelInventory
+#include "model_manager.h"                // for ModelManager
+#include "translator/response.h"          // for Response
+#include "translator/service.h"           // for AsyncService
+#include "translator/translation_model.h" // for TranslationModel
+#include <cstddef>                        // for size_t
+#include <memory>                         // for shared_ptr
 
 namespace lemonade {
 

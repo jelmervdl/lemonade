@@ -1,5 +1,10 @@
 #include "translator.h"
-#include <string>
+#include "common/timer.h"                 // for Timer
+#include "lemonade/lib/model_inventory.h" // for ModelInventory, ModelInven...
+#include "translator/byte_array_util.h"   // for getMemoryBundleFromConfig
+#include "translator/definitions.h"       // for MemoryBundle
+#include "translator/response_options.h"  // for ResponseOptions
+#include <future>                         // for future, promise
 
 namespace lemonade {
 

@@ -1,8 +1,8 @@
 #pragma once
+
 #include "3rd_party/Simple-WebSocket-Server/client_ws.hpp"
-#include "3rd_party/Simple-WebSocket-Server/server_ws.hpp"
-#include "data.h"
-#include "json_interop.h"
+#include "3rd_party/Simple-WebSocket-Server/mutex.hpp" // for LockGuard
+#include "data.h"                                      // for Payload
 
 namespace lemonade {
 
@@ -20,15 +20,11 @@ private:
   public:
     WsClient(const std::string &addr)
         : SimpleWeb::SocketClient<SimpleWeb::WS>(addr) {}
+
     // This will bite later. We'll fix when it does.
     // https://gitlab.com/eidheim/Simple-WebSocket-Server/-/issues/94#note_324545902
     void translate(const std::string &source, const std::string &target,
-                   const std::string &query) {
-      Payload payload{source, target, query};
-      std::string payloadAsString = toJSON<Payload>(payload);
-      SimpleWeb::LockGuard lock(connection_mutex);
-      connection->send(payloadAsString);
-    }
+                   const std::string &query);
   };
 
   WsClient client_;

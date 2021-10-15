@@ -1,4 +1,5 @@
 #include "translation_client.h"
+#include "json_interop.h"
 #include "utils.h"
 #include <iostream>
 
@@ -43,6 +44,15 @@ void TranslationClient::run() {
   }
 
   listeningThread.join();
+}
+
+void TranslationClient::WsClient::translate(const std::string &source,
+                                            const std::string &target,
+                                            const std::string &query) {
+  Payload payload{source, target, query};
+  std::string payloadAsString = toJSON<Payload>(payload);
+  SimpleWeb::LockGuard lock(connection_mutex);
+  connection->send(payloadAsString);
 }
 
 } // namespace lemonade
