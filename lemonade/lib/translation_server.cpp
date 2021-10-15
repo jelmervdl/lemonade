@@ -8,8 +8,7 @@ namespace lemonade {
 
 TranslationServer::TranslationServer(size_t port)
     : translator_(/*maxModels=*/4, /*numWorkers=*/4) {
-  // FIXME
-  server_.config.port = 1618;
+  server_.config.port = port;
 
   auto &endpoint = server_.endpoint["^/?$"];
 
