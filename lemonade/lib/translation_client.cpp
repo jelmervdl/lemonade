@@ -2,6 +2,8 @@
 #include "utils.h"
 #include <iostream>
 
+namespace lemonade {
+
 void TranslationClient::run() {
   client_.on_message = [](std::shared_ptr<WsClient::Connection> connection,
                           std::shared_ptr<WsClient::InMessage> in_message) {
@@ -42,3 +44,5 @@ void TranslationClient::run() {
 
   listeningThread.join();
 }
+
+} // namespace lemonade

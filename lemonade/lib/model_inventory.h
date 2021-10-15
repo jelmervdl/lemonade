@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <utility>
 
+namespace lemonade {
+
 #define LEMONADE_ABORT_IF(cond, message)                                       \
   do {                                                                         \
     if ((cond)) {                                                              \
@@ -43,3 +45,5 @@ private:
 
   rapidjson::Document readInventoryFromDisk();
 };
+
+} // namespace lemonade

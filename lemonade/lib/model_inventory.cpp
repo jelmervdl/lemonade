@@ -9,6 +9,8 @@
 #include <string>
 #include <utility>
 
+namespace lemonade {
+
 ModelInventory::ModelInventory(const std::string &modelsJSON,
                                const std::string &modelsDir)
     : modelsJSON_(modelsJSON), modelsDir_(modelsDir) {
@@ -77,3 +79,5 @@ std::string ModelInventory::configFile(const ModelInfo &modelInfo) {
       fmt::format("{}/{}/config.bergamot.yml", modelsDir_, modelInfo.code);
   return configFilePath;
 }
+
+} // namespace lemonade

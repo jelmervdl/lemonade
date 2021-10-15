@@ -4,6 +4,8 @@
 #include "data.h"
 #include "json_interop.h"
 
+namespace lemonade {
+
 class TranslationClient {
 public:
   TranslationClient(const std::string &addr, const std::string &source,
@@ -34,3 +36,5 @@ private:
   const std::string source_;
   const std::string target_;
 };
+
+} // namespace lemonade

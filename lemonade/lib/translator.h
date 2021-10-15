@@ -17,6 +17,8 @@
 #include "translator/service.h"
 #include "translator/translation_model.h"
 
+namespace lemonade {
+
 class Translator {
 
 public:
@@ -55,3 +57,5 @@ private:
   Service::Config config_;
   Service service_;
 };
+
+} // namespace lemonade

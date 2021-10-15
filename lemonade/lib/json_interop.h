@@ -8,6 +8,8 @@
 #include "translator/response.h"
 #include "translator/response_options.h"
 
+namespace lemonade {
+
 #define LEMONADE_INLINE inline
 
 ///  JSONInterOperable
@@ -98,3 +100,5 @@ LEMONADE_INLINE void fromJSON<Payload>(const std::string &json,
 }
 
 #undef LEMONADE_INLINE
+
+} // namespace lemonade

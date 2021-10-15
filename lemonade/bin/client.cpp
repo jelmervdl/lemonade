@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
   app.add_option("-s,--source", source, "Source Language")->required();
   app.add_option("-t,--target", target, "Target Language")->required();
   app.parse(argc, argv);
-  TranslationClient client(url, source, target);
+  lemonade::TranslationClient client(url, source, target);
   client.run();
   return 0;
 }

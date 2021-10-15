@@ -3,6 +3,8 @@
 #include "3rd_party/Simple-WebSocket-Server/server_ws.hpp"
 #include "translator.h"
 
+namespace lemonade {
+
 class TranslationServer {
 public:
   using WSServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
@@ -15,3 +17,5 @@ private:
   WSServer server_;
   Translator translator_;
 };
+
+} // namespace lemonade

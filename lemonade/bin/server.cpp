@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
       ->required();
   app.parse(argc, argv);
 
-  TranslationServer server(port);
+  lemonade::TranslationServer server(port);
   server.run();
   return 0;
 }

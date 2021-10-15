@@ -1,6 +1,8 @@
 #include "translator.h"
 #include <string>
 
+namespace lemonade {
+
 void Translator::translate(std::string input, const std::string &source,
                            const std::string &target,
                            marian::bergamot::CallbackType callback) {
@@ -52,3 +54,5 @@ marian::bergamot::Response Translator::btranslate(std::string input,
   f.wait();
   return f.get();
 }
+
+} // namespace lemonade

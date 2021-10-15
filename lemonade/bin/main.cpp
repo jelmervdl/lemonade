@@ -20,11 +20,11 @@ int main(int argc, char **argv) {
   app.add_option("-s,--source", source, "Source language")->required();
   app.add_option("-t,--target", target, "Target language")->required();
   app.parse(argc, argv);
-  Translator translator(/*maxModels=*/4, /*numWorkers=*/40);
+  lemonade::Translator translator(/*maxModels=*/4, /*numWorkers=*/40);
   std::string input = readFromStdin();
   using Response = marian::bergamot::Response;
   Response response = translator.btranslate(std::move(input), source, target);
 
-  std::cout << toJSON<Response>(response) << std::endl;
+  std::cout << lemonade::toJSON<Response>(response) << std::endl;
   return 0;
 }

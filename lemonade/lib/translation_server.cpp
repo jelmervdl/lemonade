@@ -4,8 +4,11 @@
 #include "json_interop.h"
 #include "utils.h"
 
+namespace lemonade {
+
 TranslationServer::TranslationServer(size_t port)
     : translator_(/*maxModels=*/4, /*numWorkers=*/4) {
+  // FIXME
   server_.config.port = 1618;
 
   auto &endpoint = server_.endpoint["^/?$"];
@@ -59,3 +62,5 @@ void TranslationServer::run() {
     LOG(info, "TranslationServer is listening on port {}", port);
   });
 }
+
+} // namespace lemonade

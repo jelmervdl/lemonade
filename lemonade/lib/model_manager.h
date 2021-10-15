@@ -3,6 +3,7 @@
 #include <list>
 #include <memory>
 
+namespace lemonade {
 /// Manages models, LRU
 class ModelManager {
   using Model = marian::bergamot::TranslationModel;
@@ -41,3 +42,5 @@ private:
   Container models_;
   std::unordered_map<std::string, Container::iterator> lookup_;
 };
+
+} // namespace lemonade
