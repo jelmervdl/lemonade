@@ -1,11 +1,11 @@
 #include "model_inventory.h"
-#include "fmt/core.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <optional>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <utility>
 
@@ -13,7 +13,7 @@ namespace lemonade {
 
 ModelInventory::ModelInventory(const std::string &modelsJSON,
                                const std::string &modelsDir)
-    : modelsJSON_(modelsJSON), modelsDir_(modelsDir) {
+    : modelsJSON_(modelsJSON), modelsDir_(modelsDir), logger_("models") {
   // std::cout << modelsJSON_ << std::endl;
 
   inventory_ = readInventoryFromDisk();

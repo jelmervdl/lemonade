@@ -1,14 +1,14 @@
 #include "translation_server.h"
 #include "data.h"
-#include "fmt/core.h"
 #include "json_interop.h"
+#include "logging.h"
 #include "utils.h"
 
 namespace lemonade {
 
 TranslationServer::TranslationServer(size_t port, size_t maxModels,
                                      size_t numWorkers)
-    : translator_(maxModels, numWorkers) {
+    : translator_(maxModels, numWorkers), logger_("server") {
   server_.config.port = port;
 
   auto &endpoint = server_.endpoint["^/?$"];
@@ -21,11 +21,10 @@ TranslationServer::TranslationServer(size_t port, size_t maxModels,
     Payload payload;
     fromJSON<Payload>(payloadAsString, payload);
 
-    std::cerr << fmt::format("{} [{} -> {}] {}", currentTime(), payload.source,
-                             payload.target, payload.query)
-              << std::endl;
+    logger_.log(fmt::format("[{} -> {}] {}", payload.source, payload.target,
+                            payload.query));
 
-    auto callback = [connection](marian::bergamot::Response &&response) {
+    auto callback = [connection, this](marian::bergamot::Response &&response) {
       std::string outputText = response.target.text;
 
       auto sendStream = std::make_shared<WSServer::OutMessage>();
@@ -34,10 +33,10 @@ TranslationServer::TranslationServer(size_t port, size_t maxModels,
       *sendStream << outputText;
 
       // Send translation back
-      connection->send(sendStream, [](const SimpleWeb::error_code &error) {
+      connection->send(sendStream, [this](const SimpleWeb::error_code &error) {
         if (error)
-          std::cerr << fmt::format("Error sending message: ({}) {}\n",
-                                   error.value(), error.message());
+          logger_.log(fmt::format("Error sending message: ({}) {}\n",
+                                  error.value(), error.message()));
       });
     };
 
@@ -47,17 +46,18 @@ TranslationServer::TranslationServer(size_t port, size_t maxModels,
 
   // Error Codes for error code meanings
   // http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html
-  endpoint.on_error = [](std::shared_ptr<WSServer::Connection> /*connection*/,
-                         const SimpleWeb::error_code &error) {
-    std::cerr << fmt::format("Connection error: ({}) {}\n", error.value(),
-                             error.message());
-  };
+  endpoint.on_error =
+      [this](std::shared_ptr<WSServer::Connection> /*connection*/,
+             const SimpleWeb::error_code &error) {
+        logger_.log(fmt::format("Connection error: ({}) {}\n", error.value(),
+                                error.message()));
+      };
 }
 
 // Start server thread
 void TranslationServer::run() {
-  server_.start([](unsigned short port) {
-    std::cerr << fmt::format("TranslationServer is listening on port {}", port);
+  server_.start([this](unsigned short port) {
+    logger_.log(fmt::format("TranslationServer is listening on port {}", port));
   });
 }
 

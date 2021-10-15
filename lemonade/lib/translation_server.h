@@ -1,6 +1,7 @@
 #pragma once
 
 #include "3rd_party/Simple-WebSocket-Server/server_ws.hpp"
+#include "logging.h"
 #include "translator.h"
 
 namespace lemonade {
@@ -16,6 +17,7 @@ public:
 private:
   WSServer server_;
   Translator translator_;
+  Logger logger_;
 };
 
 } // namespace lemonade
