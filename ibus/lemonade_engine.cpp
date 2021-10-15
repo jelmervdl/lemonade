@@ -1,5 +1,5 @@
 #include "lemonade_engine.h"
-#include "engine-compat.h"
+#include "engine_compat.h"
 
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine) : Engine(engine) { gint i; }

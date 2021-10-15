@@ -1,5 +1,5 @@
 #include "application.h"
-#include "engine-compat.h"
+#include "engine_compat.h"
 #include <ibus.h>
 
 int main(int argc, char **argv) {

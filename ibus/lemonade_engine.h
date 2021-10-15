@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine-compat.h"
+#include "engine_compat.h"
 
 class LemonadeEngine : public Engine {
 public:
