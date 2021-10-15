@@ -3,8 +3,8 @@
 #include <string>
 
 #include "3rd_party/CLI/CLI.hpp"
-#include "json_interop.h"
-#include "translator.h"
+#include "lemonade/lib/json_interop.h"
+#include "lemonade/lib/translator.h"
 
 std::string readFromStdin() {
   std::stringstream readStream;

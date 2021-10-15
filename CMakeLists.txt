@@ -24,8 +24,6 @@ SET(USE_WASM_COMPATIBLE_SOURCE OFF CACHE BOOL "Don't build wasm compatible sourc
 
 find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
 
-
-
 include(GetVersionFromFile)
 message(STATUS "Project name: ${PROJECT_NAME}")
 message(STATUS "Project version: ${PROJECT_VERSION_STRING_FULL}")
@@ -40,12 +38,17 @@ set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local 
 set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
 set(PROJECT_LICENSE "GPL")
 
+set(LEMONADE_INCLUDE_DIRECTORIES 
+    ${CMAKE_SOURCE_DIR}/3rd_party/CLI
+    ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
+    ${CMAKE_SOURCE_DIR}
+)
+
 if(UNIX)
 include(GNUInstallDirs)
 
 add_subdirectory(3rd_party)
 add_subdirectory(lemonade)
-add_subdirectory(ibus)
 
 install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
 install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})

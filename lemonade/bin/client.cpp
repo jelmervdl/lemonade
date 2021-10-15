@@ -1,5 +1,5 @@
 #include "3rd_party/CLI/CLI.hpp"
-#include "translation_client.h"
+#include "lemonade/lib/translation_client.h"
 
 int main(int argc, char **argv) {
   using App = CLI::App;
