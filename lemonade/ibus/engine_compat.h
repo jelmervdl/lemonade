@@ -72,6 +72,10 @@ protected:
 
   void hideLookupTable(void) const { ibus_engine_hide_lookup_table(m_engine); }
 
+  void clearLookupTable(g::LookupTable &table) const {
+    ibus_lookup_table_clear(table);
+  }
+
   void registerProperties(g::PropList &props) const {
     ibus_engine_register_properties(m_engine, props);
   }

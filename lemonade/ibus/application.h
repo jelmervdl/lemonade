@@ -2,19 +2,21 @@
 #include "engine_compat.h"
 #include <ibus.h>
 
+static g::Pointer<IBusFactory> factory = NULL;
+
 namespace lemonade::ibus {
 class Application {
 public:
   Application(gboolean ibus) {
     ibus_init();
-    auto cb = +[](IBusBus *bus, gpointer user_data) { ibus_quit(); };
+
     bus = ibus_bus_new();
     g_object_ref_sink(bus);
-    g_signal_connect(bus, "disconnected", G_CALLBACK(cb), NULL);
 
-    IBusFactory *factory = NULL;
+    auto callback = +[](IBusBus *bus, gpointer user_data) { ibus_quit(); };
+    g_signal_connect(bus, "disconnected", G_CALLBACK(callback), NULL);
+
     factory = ibus_factory_new(ibus_bus_get_connection(bus));
-    g_object_ref_sink(factory);
 
     ibus_factory_add_engine(factory, "",
                             IBUS_TYPE_LEMONADE_ENGINE);
@@ -22,7 +24,8 @@ public:
     if (ibus) {
       ibus_bus_request_name(bus, "org.freedesktop.IBus.Lemonade", 0);
     } else {
-      IBusComponent *component;
+
+      g::Pointer<IBusComponent> component;
 
       component = ibus_component_new(
           /*name=*/"org.freedesktop.IBus.Lemonade", /*description=*/"Lemonade provides client-side translation on the local *nix machine.",

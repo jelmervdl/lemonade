@@ -1,9 +1,15 @@
 #pragma once
 
 #include "engine_compat.h"
+#include <string>
+#include <vector>
 
 namespace lemonade::ibus {
 
+/// Idea here is to maintain an active buffer string.
+//
+// 1. The first suggestion is the translated text.
+// 2. The second suggestion is the raw text the user entered.
 class LemonadeEngine : public Engine {
 public:
   LemonadeEngine(IBusEngine *engine);
@@ -25,6 +31,10 @@ public:
 
 private:
   void showSetupDialog(void);
+
+  g::LookupTable generateLookupTable(const std::vector<std::string> &entries);
+
+  std::string buffer_;
 };
 
 } // namespace lemonade::ibus
