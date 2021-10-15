@@ -1,4 +1,8 @@
 #include "translation_server.h"
+#include "data.h"
+#include "fmt/core.h"
+#include "json_interop.h"
+#include "utils.h"
 
 TranslationServer::TranslationServer(size_t port)
     : translator_(/*maxModels=*/4, /*numWorkers=*/4) {
@@ -9,9 +13,15 @@ TranslationServer::TranslationServer(size_t port)
   endpoint.on_message = [this](std::shared_ptr<WSServer::Connection> connection,
                                std::shared_ptr<WSServer::InMessage> message) {
     // Get input text
-    std::cerr << "Message received" << std::endl;
-    std::string inputText = message->string();
-    std::cerr << "Message: " << inputText << std::endl;
+    std::string payloadAsString = message->string();
+    // std::cerr << "Message: " << payloadAsString << std::endl;
+    Payload payload;
+    fromJSON<Payload>(payloadAsString, payload);
+
+    std::cerr << fmt::format("{} [{} -> {}] {}", currentTime(), payload.source,
+                             payload.target, payload.query)
+              << std::endl;
+
     auto callback = [connection](marian::bergamot::Response &&response) {
       std::string outputText = response.target.text;
 
@@ -30,7 +40,8 @@ TranslationServer::TranslationServer(size_t port)
       });
     };
 
-    translator_.translate(inputText, "English", "German", callback);
+    translator_.translate(payload.query, payload.source, payload.target,
+                          callback);
   };
 
   // Error Codes for error code meanings

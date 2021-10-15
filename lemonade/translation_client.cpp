@@ -1,10 +1,11 @@
 #include "translation_client.h"
+#include "utils.h"
 #include <iostream>
 
 void TranslationClient::run() {
   client_.on_message = [](std::shared_ptr<WsClient::Connection> connection,
                           std::shared_ptr<WsClient::InMessage> in_message) {
-    std::cout << "Client: Message received: \"" << in_message->string() << "\""
+    std::cout << fmt::format("[{}] {}", currentTime(), in_message->string())
               << std::endl;
 
     // std::cout << "Client: Sending close connection" << std::endl;
@@ -36,7 +37,7 @@ void TranslationClient::run() {
   // Mainloop
   std::string line;
   while (std::getline(std::cin, line)) {
-    client_.send_message(line);
+    client_.translate(source_, target_, line);
   }
 
   listeningThread.join();

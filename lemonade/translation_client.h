@@ -1,10 +1,14 @@
 #pragma once
 #include "3rd_party/Simple-WebSocket-Server/client_ws.hpp"
 #include "3rd_party/Simple-WebSocket-Server/server_ws.hpp"
+#include "data.h"
+#include "json_interop.h"
 
 class TranslationClient {
 public:
-  TranslationClient(const std::string &addr) : client_(addr) {}
+  TranslationClient(const std::string &addr, const std::string &source,
+                    const std::string &target)
+      : client_(addr), source_(source), target_(target) {}
   void run();
 
 private:
@@ -16,11 +20,17 @@ private:
         : SimpleWeb::SocketClient<SimpleWeb::WS>(addr) {}
     // This will bite later. We'll fix when it does.
     // https://gitlab.com/eidheim/Simple-WebSocket-Server/-/issues/94#note_324545902
-    void send_message(std::string msg_to_send) {
+    void translate(const std::string &source, const std::string &target,
+                   const std::string &query) {
+      Payload payload{source, target, query};
+      std::string payloadAsString = toJSON<Payload>(payload);
       SimpleWeb::LockGuard lock(connection_mutex);
-      connection->send(msg_to_send);
+      connection->send(payloadAsString);
     }
   };
 
   WsClient client_;
+
+  const std::string source_;
+  const std::string target_;
 };

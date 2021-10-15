@@ -1,4 +1,5 @@
 #pragma once
+#include "data.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
@@ -61,6 +62,39 @@ toJSON<marian::bergamot::Response>(const marian::bergamot::Response &response) {
   document.AddMember("target", addAnnotatedText(response.target), allocator);
 
   return asString(document);
+}
+
+template <>
+LEMONADE_INLINE std::string toJSON<Payload>(const Payload &payload) {
+  rapidjson::Document document;
+  rapidjson::Document::AllocatorType &allocator = document.GetAllocator();
+  document.SetObject();
+
+  document.AddMember(
+      "source",
+      rapidjson::StringRef(payload.source.data(), payload.source.size()),
+      allocator);
+
+  document.AddMember(
+      "target",
+      rapidjson::StringRef(payload.target.data(), payload.target.size()),
+      allocator);
+
+  document.AddMember(
+      "query", rapidjson::StringRef(payload.query.data(), payload.query.size()),
+      allocator);
+
+  return asString(document);
+}
+
+template <>
+LEMONADE_INLINE void fromJSON<Payload>(const std::string &json,
+                                       Payload &payload) {
+  rapidjson::Document document;
+  document.Parse(json.c_str());
+  payload.source = document["source"].GetString();
+  payload.target = document["target"].GetString();
+  payload.query = document["query"].GetString();
 }
 
 #undef LEMONADE_INLINE
