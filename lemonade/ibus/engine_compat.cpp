@@ -1,6 +1,8 @@
 #include "lemonade_engine.h"
 #include <cstring>
 
+namespace lemonade::ibus {
+
 typedef struct _IBusLemonadeEngine IBusLemonadeEngine;
 typedef struct _IBusLemonadeEngineClass IBusLemonadeEngineClass;
 
@@ -206,3 +208,5 @@ void Engine::setContentType(guint purpose, guint hints) {
 #endif
 
 Engine::~Engine(void) {}
+
+} // namespace lemonade::ibus

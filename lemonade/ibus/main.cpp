@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     return (-1);
   }
 
-  Application application(ibus);
+  lemonade::ibus::Application application(ibus);
   ibus_main();
   return 0;
 }

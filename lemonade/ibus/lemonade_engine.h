@@ -2,6 +2,8 @@
 
 #include "engine_compat.h"
 
+namespace lemonade::ibus {
+
 class LemonadeEngine : public Engine {
 public:
   LemonadeEngine(IBusEngine *engine);
@@ -24,3 +26,5 @@ public:
 private:
   void showSetupDialog(void);
 };
+
+} // namespace lemonade::ibus

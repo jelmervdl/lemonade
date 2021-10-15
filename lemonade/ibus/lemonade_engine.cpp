@@ -1,6 +1,8 @@
 #include "lemonade_engine.h"
 #include "engine_compat.h"
 
+namespace lemonade::ibus {
+
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine) : Engine(engine) { gint i; }
 
@@ -46,3 +48,5 @@ gboolean LemonadeEngine::propertyActivate(const char *prop_name,
 }
 
 void LemonadeEngine::candidateClicked(guint index, guint button, guint state) {}
+
+} // namespace lemonade::ibus

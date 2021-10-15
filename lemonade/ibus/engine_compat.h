@@ -1,13 +1,13 @@
 #pragma once
 #include <ibus.h>
 
+#include "gtypes.h"
+
+namespace lemonade::ibus {
+
 #define IBUS_TYPE_LEMONADE_ENGINE (ibus_lemonade_engine_get_type())
-#define is_alpha(c)                                                            \
-  (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
 GType ibus_lemonade_engine_get_type(void);
-
-#include "gtypes.h"
 
 class Engine {
 public:
@@ -87,3 +87,5 @@ protected:
   IBusInputPurpose m_input_purpose;
 #endif
 };
+
+} // namespace lemonade::ibus

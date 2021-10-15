@@ -2,6 +2,7 @@
 #include "engine_compat.h"
 #include <ibus.h>
 
+namespace lemonade::ibus {
 class Application {
 public:
   Application(gboolean ibus) {
@@ -46,3 +47,4 @@ public:
 private:
   IBusBus *bus = NULL;
 };
+} // namespace lemonade::ibus
