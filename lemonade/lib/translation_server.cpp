@@ -31,8 +31,6 @@ TranslationServer::TranslationServer(size_t port)
       // Translate
       // timer::Timer timer;
       *sendStream << outputText;
-      // if (!quiet)
-      //   LOG(info, "Translation took: {:.5f}s", timer.elapsed());
 
       // Send translation back
       connection->send(sendStream, [](const SimpleWeb::error_code &error) {
@@ -58,7 +56,7 @@ TranslationServer::TranslationServer(size_t port)
 // Start server thread
 void TranslationServer::run() {
   server_.start([](unsigned short port) {
-    LOG(info, "TranslationServer is listening on port {}", port);
+    std::cerr << fmt::format("TranslationServer is listening on port {}", port);
   });
 }
 
