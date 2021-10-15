@@ -6,8 +6,9 @@
 
 namespace lemonade {
 
-TranslationServer::TranslationServer(size_t port)
-    : translator_(/*maxModels=*/4, /*numWorkers=*/4) {
+TranslationServer::TranslationServer(size_t port, size_t maxModels,
+                                     size_t numWorkers)
+    : translator_(maxModels, numWorkers) {
   server_.config.port = port;
 
   auto &endpoint = server_.endpoint["^/?$"];
