@@ -79,6 +79,7 @@ def patch_marian_for_bergamot(fpath, output_path, quality=False):
         'ssplit-mode': 'sentence',
         'max-length-break': 128,
         'mini-batch-words': 1024,
+        'workspace': 128, # shipped models use big workspaces. We'd prefer to keep it low.
     })
 
     if quality:
