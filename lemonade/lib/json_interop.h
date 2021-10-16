@@ -19,28 +19,27 @@ template <class T> std::string toJSON(const T &in);
 LEMONADE_INLINE std::string asString(const rapidjson::Document &document) {
   rapidjson::StringBuffer buffer;
   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+  writer.SetFormatOptions(
+      rapidjson::PrettyFormatOptions::kFormatSingleLineArray);
   document.Accept(writer);
   return buffer.GetString();
 }
 
-#define LEMONADE_VALUE_INSERT(document, obj, attribute)                        \
-  do {                                                                         \
-    document.AddMember(#attribute, obj.attribute, document.GetAllocator());    \
-  } while (0)
-
-template <>
-LEMONADE_INLINE void fromJSON<marian::bergamot::ResponseOptions>(
+LEMONADE_INLINE template <>
+void fromJSON<marian::bergamot::ResponseOptions>(
     const std::string &json, marian::bergamot::ResponseOptions &options) {}
+
 template <>
 LEMONADE_INLINE std::string toJSON<marian::bergamot::ResponseOptions>(
     const marian::bergamot::ResponseOptions &options) {
   rapidjson::Document document;
   document.SetObject();
-  LEMONADE_VALUE_INSERT(document, options, qualityScores);
-  LEMONADE_VALUE_INSERT(document, options, alignment);
-  LEMONADE_VALUE_INSERT(document, options, sentenceMappings);
-  LEMONADE_VALUE_INSERT(document, options, alignmentThreshold);
-  LEMONADE_VALUE_INSERT(document, options, concatStrategy);
+  auto ator = document.GetAllocator();
+  document.AddMember("qualityScores", options.qualityScores, ator);
+  document.AddMember("alignment", options.alignment, ator);
+  document.AddMember("sentenceMappings", options.sentenceMappings, ator);
+  document.AddMember("alignmentThreshold", options.alignmentThreshold, ator);
+  document.AddMember("concatStrategy", options.concatStrategy, ator);
   return asString(document);
 }
 
@@ -57,6 +56,28 @@ toJSON<marian::bergamot::Response>(const marian::bergamot::Response &response) {
         atext.AddMember("text",
                         rapidjson::StringRef(in.text.data(), in.text.size()),
                         allocator);
+
+        auto addAnnotation =
+            [&allocator](const marian::bergamot::Annotation &annotation) {
+              rapidjson::Value vAnnotation;
+              vAnnotation.SetArray();
+              for (size_t s = 0; s < annotation.numSentences(); s++) {
+                rapidjson::Value vSentence;
+                vSentence.SetArray();
+                for (size_t w = 0; w < annotation.numWords(s); w++) {
+                  rapidjson::Value vWord;
+                  auto word = annotation.word(s, w);
+                  vWord.SetArray();
+                  vWord.PushBack(word.begin, allocator);
+                  vWord.PushBack(word.end, allocator);
+                  vSentence.PushBack(vWord, allocator);
+                }
+                vAnnotation.PushBack(vSentence, allocator);
+              }
+              return vAnnotation;
+            };
+
+        atext.AddMember("annotation", addAnnotation(in.annotation), allocator);
         return atext;
       };
 
