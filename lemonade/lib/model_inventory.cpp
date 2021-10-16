@@ -13,7 +13,7 @@ namespace lemonade {
 
 ModelInventory::ModelInventory(const std::string &modelsJSON,
                                const std::string &modelsDir)
-    : modelsJSON_(modelsJSON), modelsDir_(modelsDir), logger_("models") {
+    : modelsJSON_(modelsJSON), modelsDir_(modelsDir), logger_("inventory") {
   // std::cout << modelsJSON_ << std::endl;
 
   inventory_ = readInventoryFromDisk();
@@ -33,12 +33,16 @@ ModelInventory::ModelInventory(const std::string &modelsJSON,
       LanguageDirection direction =
           std::make_pair(entry["src"].GetString(), entry["trg"].GetString());
 
-      languageDirections_[direction] =
-          ModelInfo{/*name=*/
-                    entry["name"].GetString(),
-                    /*type=*/entry["type"].GetString(),
-                    /*code=*/entry["code"].GetString(),
-                    /*direction=*/direction};
+      ModelInfo modelInfo{/*name=*/
+                          entry["name"].GetString(),
+                          /*type=*/entry["type"].GetString(),
+                          /*code=*/entry["code"].GetString(),
+                          /*direction=*/direction};
+      languageDirections_[direction] = modelInfo;
+
+      logger_.log(fmt::format("Found model {} ({} -> {})", modelInfo.code,
+                              modelInfo.direction.first,
+                              modelInfo.direction.second));
     }
   }
 }

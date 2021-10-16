@@ -11,6 +11,13 @@ Logger::Logger(const std::string &name, const std::string &level /*=info*/,
     : name_(name), level_(level),
       pattern_(fmt::format("[{}] {}", name, "[%Y-%m-%d %T] %v")) {
 
+  UnderlyingLogger maybeLogger = spdlog::get(name_);
+  if (maybeLogger) {
+    std::cerr << fmt::format("Logger with name {} already exists.", name_)
+              << std::endl;
+    std::abort();
+  }
+
   // Logging always happens in stderr.
   std::vector<spdlog::sink_ptr> sinks;
   auto stderr_sink = spdlog::sinks::stderr_sink_mt::instance();

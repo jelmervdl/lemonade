@@ -1,4 +1,5 @@
 #pragma once
+#include "logging.h"
 #include "rapidjson/document.h"
 #include <optional>
 #include <string>
@@ -44,6 +45,8 @@ private:
   std::string modelsJSON_;
 
   rapidjson::Document readInventoryFromDisk();
+
+  Logger logger_;
 };
 
 } // namespace lemonade
