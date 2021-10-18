@@ -25,8 +25,8 @@ LEMONADE_INLINE std::string asString(const rapidjson::Document &document) {
   return buffer.GetString();
 }
 
-LEMONADE_INLINE template <>
-void fromJSON<marian::bergamot::ResponseOptions>(
+template <>
+void LEMONADE_INLINE fromJSON<marian::bergamot::ResponseOptions>(
     const std::string &json, marian::bergamot::ResponseOptions &options) {}
 
 template <>
