@@ -22,6 +22,7 @@ Logger::Logger(const std::string &name,
   // Logging always happens in stderr.
   std::vector<spdlog::sink_ptr> sinks;
   auto stderr_sink = spdlog::sinks::stderr_sink_mt::instance();
+  sinks.push_back(stderr_sink);
 
   // If files are given, we have a few more sinks.
   for (auto &&file : files) {
@@ -94,7 +95,6 @@ void Logger::log(const std::string &message,
   else {
     logger->warn("Unknown log level '{}' for logger '{}'", level, name_);
   }
-  logger->flush();
 #endif
 }
 
