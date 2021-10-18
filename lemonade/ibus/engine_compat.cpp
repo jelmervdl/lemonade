@@ -1,7 +1,23 @@
+#include "engine_compat.h"
 #include "lemonade_engine.h"
 #include <cstring>
 
 namespace lemonade::ibus {
+
+/* code of engine class of GObject */
+#define IBUS_LEMONADE_ENGINE(obj)                                              \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), IBUS_TYPE_LEMONADE_ENGINE,                \
+                              IBusLemonadeEngine))
+#define IBUS_LEMONADE_ENGINE_CLASS(klass)                                      \
+  (G_TYPE_CHECK_CLASS_CAST((klass), IBUS_TYPE_LEMONADE_ENGINE,                 \
+                           IBusLemonadeEngineClass))
+#define IBUS_IS_LEMONADE_ENGINE(obj)                                           \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), IBUS_TYPE_LEMONADE_ENGINE))
+#define IBUS_IS_LEMONADE_ENGINE_CLASS(klass)                                   \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), IBUS_TYPE_LEMONADE_ENGINE))
+#define IBUS_LEMONADE_ENGINE_GET_CLASS(obj)                                    \
+  (G_TYPE_INSTANCE_GET_CLASS((obj), IBUS_TYPE_LEMONADE_ENGINE,                 \
+                             IBusLemonadeEngineClass))
 
 typedef struct _IBusLemonadeEngine IBusLemonadeEngine;
 typedef struct _IBusLemonadeEngineClass IBusLemonadeEngineClass;

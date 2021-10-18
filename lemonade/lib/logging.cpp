@@ -40,7 +40,11 @@ Logger::Logger(const std::string &name,
   setLoggingLevel(*logger, level);
 }
 
-Logger::~Logger() { spdlog::drop(name_); }
+Logger::~Logger() {
+  if (spdlog::get(name_)) {
+    spdlog::drop(name_);
+  }
+}
 
 bool Logger::setLoggingLevel(spdlog::logger &logger, std::string const level) {
   if (level == "trace")

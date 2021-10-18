@@ -1,14 +1,22 @@
 #include "lemonade_engine.h"
 #include "engine_compat.h"
 #include "lemonade/lib/logging.h"
+#include "lemonade/lib/utils.h"
 #include <string>
 #include <vector>
 
 namespace lemonade::ibus {
 
+namespace {
+std::string getIBUSLoggingDirectory() {
+  return fmt::format("{}/.lemonade/ibus.log", home());
+}
+} // namespace
+
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine)
-    : Engine(engine), logger_("ibus-engine") {
+    : Engine(engine), logger_("ibus-engine", {getIBUSLoggingDirectory()}) {
+  logger_.log("Lemonade engine started");
   gint i;
 }
 

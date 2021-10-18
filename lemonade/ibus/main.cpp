@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
   GOptionContext *context;
 
   /* Parse the command line */
-  context = g_option_context_new("- ibus template engine");
-  g_option_context_add_main_entries(context, entries, "ibus-tmpl");
+  context = g_option_context_new("- ibus lemonade engine component");
+  g_option_context_add_main_entries(context, entries, "ibus-lemonade");
 
   if (!g_option_context_parse(context, &argc, &argv, &error)) {
     g_print("Option parsing failed: %s\n", error->message);
@@ -28,6 +28,5 @@ int main(int argc, char **argv) {
   }
 
   lemonade::ibus::Application application(ibus);
-  ibus_main();
   return 0;
 }
