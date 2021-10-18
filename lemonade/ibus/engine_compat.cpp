@@ -133,15 +133,7 @@ ibus_lemonade_engine_constructor(GType type, guint n_construct_params,
       (IBusLemonadeEngine *)G_OBJECT_CLASS(ibus_lemonade_engine_parent_class)
           ->constructor(type, n_construct_params, construct_params);
   name = ibus_engine_get_name((IBusEngine *)engine);
-
-  if (name) {
-    if (std::strcmp(name, "liblemonade") == 0 ||
-        std::strcmp(name, "liblemonade-debug") == 0) {
-      engine->engine = new LemonadeEngine(IBUS_ENGINE(engine));
-    }
-  } else {
-    engine->engine = new LemonadeEngine(IBUS_ENGINE(engine));
-  }
+  engine->engine = new LemonadeEngine(IBUS_ENGINE(engine));
   return (GObject *)engine;
 }
 

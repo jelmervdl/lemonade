@@ -28,5 +28,6 @@ int main(int argc, char **argv) {
   }
 
   lemonade::ibus::Application application(ibus);
+  application.run();
   return 0;
 }

@@ -3,6 +3,5 @@ dist/
 
 .*sw[op]
 
-ibus/bergamot.xml
-ibus/application.h
+lemonade/ibus/application.h
 
