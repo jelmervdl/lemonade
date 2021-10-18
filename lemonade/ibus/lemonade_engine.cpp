@@ -38,9 +38,10 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
   // We are skipping any modifiers. Our workflow is simple. Ctrl-Enter key is
   // send.
   if (modifiers & IBUS_CONTROL_MASK && keyval == IBUS_Return) {
-    g::Text text(buffer_);
+    g::Text text(translationBuffer_);
     commitText(text);
     buffer_.clear();
+    translationBuffer_.clear();
     hideLookupTable();
     return TRUE;
   }
@@ -53,18 +54,19 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
   gboolean retval = FALSE;
   switch (keyval) {
   case IBUS_Return: {
-    buffer_ += "\n";
-    g::Text text(buffer_);
+    translationBuffer_ += "\n";
+    g::Text text(translationBuffer_);
     commitText(text);
     hideLookupTable();
     buffer_.clear();
+    translationBuffer_.clear();
     retval = TRUE;
   } break;
   case IBUS_BackSpace: {
     if (!buffer_.empty()) {
       buffer_.pop_back();
+      retval = TRUE;
     }
-    retval = TRUE;
   } break;
 
   default: {
@@ -81,11 +83,15 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
   auto translation =
       translator_.btranslate(std::move(bufferCopy), "English", "German");
 
-  std::vector<std::string> entries = {translation.target.text, buffer_};
+  translationBuffer_ = translation.target.text;
+
+  std::vector<std::string> entries = {translationBuffer_, buffer_};
   g::LookupTable table = generateLookupTable(entries);
   updateLookupTable(table, /*visible=*/!entries.empty());
 
-  showLookupTable();
+  if (!buffer_.empty()) {
+    showLookupTable();
+  }
 
   return retval;
 }
