@@ -67,6 +67,7 @@ LemonadeEngine::generateLookupTable(const std::vector<std::string> &entries) {
   for (auto &entry : entries) {
     lookupTable.appendCandidate(g::Text(entry));
   }
+  return lookupTable;
 }
 
 } // namespace lemonade::ibus
