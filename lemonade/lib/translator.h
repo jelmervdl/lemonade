@@ -4,8 +4,9 @@
 #include "translator/response.h"          // for Response
 #include "translator/service.h"           // for AsyncService
 #include "translator/translation_model.h" // for TranslationModel
-#include <cstddef>                        // for size_t
-#include <memory>                         // for shared_ptr
+#include "utils.h"
+#include <cstddef> // for size_t
+#include <memory>  // for shared_ptr
 
 namespace lemonade {
 
@@ -25,19 +26,6 @@ public:
                                         const std::string &target);
 
 private:
-  static std::string modelsJSON() {
-    return fmt::format("{}/.config/lemonade/models.json", home());
-  }
-
-  static std::string modelsDir() {
-    return fmt::format("{}/.lemonade/models", home());
-  }
-
-  static std::string home() {
-    const char *envHome = std::getenv("HOME");
-    return std::string(envHome);
-  }
-
   using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
   using Service = marian::bergamot::AsyncService;
 
