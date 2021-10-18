@@ -16,7 +16,8 @@ std::string getIBUSLoggingDirectory() {
 
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine)
-    : Engine(engine), logger_("ibus-engine", {getIBUSLoggingDirectory()}) {
+    : Engine(engine), logger_("ibus-engine", {getIBUSLoggingDirectory()}),
+      translator_(/*maxModels=*/4, /*numWorkers=*/1) {
   logger_.log("Lemonade engine started");
   gint i;
 }
@@ -40,6 +41,7 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
     g::Text text(buffer_);
     commitText(text);
     buffer_.clear();
+    hideLookupTable();
     return TRUE;
   }
 
@@ -54,6 +56,7 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
     buffer_ += "\n";
     g::Text text(buffer_);
     commitText(text);
+    hideLookupTable();
     buffer_.clear();
     retval = TRUE;
   } break;
@@ -74,8 +77,11 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
   } break;
   }
 
-  std::string translation = "Translation here";
-  std::vector<std::string> entries = {translation, buffer_};
+  std::string bufferCopy = buffer_;
+  auto translation =
+      translator_.btranslate(std::move(bufferCopy), "English", "German");
+
+  std::vector<std::string> entries = {translation.target.text, buffer_};
   g::LookupTable table = generateLookupTable(entries);
   updateLookupTable(table, /*visible=*/!entries.empty());
 

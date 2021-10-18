@@ -2,6 +2,7 @@
 
 #include "engine_compat.h"
 #include "lemonade/lib/logging.h"
+#include "lemonade/lib/translator.h"
 #include <string>
 #include <vector>
 
@@ -38,6 +39,7 @@ private:
   std::string buffer_ = "";
 
   Logger logger_;
+  Translator translator_;
 };
 
 } // namespace lemonade::ibus
