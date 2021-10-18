@@ -44,6 +44,8 @@ set(LEMONADE_INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}
 )
 
+message("${LEMONADE_INCLUDE_DIRECTORIES}")
+
 if(UNIX)
 include(GNUInstallDirs)
 

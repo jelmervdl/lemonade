@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine_compat.h"
+#include "lemonade/lib/logging.h"
 #include <string>
 #include <vector>
 
@@ -35,6 +36,8 @@ private:
   g::LookupTable generateLookupTable(const std::vector<std::string> &entries);
 
   std::string buffer_;
+
+  Logger logger_;
 };
 
 } // namespace lemonade::ibus

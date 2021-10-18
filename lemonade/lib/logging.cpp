@@ -6,9 +6,10 @@
 
 namespace lemonade {
 
-Logger::Logger(const std::string &name, const std::string &level /*=info*/,
-               const std::vector<std::string> &files /*={}*/)
-    : name_(name), level_(level),
+Logger::Logger(const std::string &name,
+               const std::vector<std::string> &files /*={}*/,
+               const std::string &level /*=info*/)
+    : name_(name), files_(files), level_(level),
       pattern_(fmt::format("[{}] {}", name, "[%Y-%m-%d %T] %v")) {
 
   UnderlyingLogger maybeLogger = spdlog::get(name_);
@@ -65,7 +66,7 @@ bool Logger::setLoggingLevel(spdlog::logger &logger, std::string const level) {
 
 void Logger::log(const std::string &message,
                  const std::string &level /*= "info"*/) {
-#if 1
+#if 0
 
   std::cerr << fmt::format("[{}] [{}] {}", currentTime(), level, message)
             << std::endl;
@@ -93,7 +94,7 @@ void Logger::log(const std::string &message,
   else {
     logger->warn("Unknown log level '{}' for logger '{}'", level, name_);
   }
-
+  logger->flush();
 #endif
 }
 

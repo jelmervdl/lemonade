@@ -1,12 +1,16 @@
 #include "lemonade_engine.h"
 #include "engine_compat.h"
+#include "lemonade/lib/logging.h"
 #include <string>
 #include <vector>
 
 namespace lemonade::ibus {
 
 /* constructor */
-LemonadeEngine::LemonadeEngine(IBusEngine *engine) : Engine(engine) { gint i; }
+LemonadeEngine::LemonadeEngine(IBusEngine *engine)
+    : Engine(engine), logger_("ibus-engine") {
+  gint i;
+}
 
 /* destructor */
 LemonadeEngine::~LemonadeEngine(void) {}
@@ -27,6 +31,8 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
   g::LookupTable table = generateLookupTable(entries);
   updateLookupTable(table, /*visible=*/!entries.empty());
   retval = TRUE;
+
+  showLookupTable();
 
   return retval;
 }
