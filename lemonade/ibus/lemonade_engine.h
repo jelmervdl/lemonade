@@ -35,7 +35,7 @@ private:
 
   g::LookupTable generateLookupTable(const std::vector<std::string> &entries);
 
-  std::string buffer_;
+  std::string buffer_ = "";
 
   Logger logger_;
 };

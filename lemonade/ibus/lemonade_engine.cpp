@@ -2,6 +2,7 @@
 #include "engine_compat.h"
 #include "lemonade/lib/logging.h"
 #include "lemonade/lib/utils.h"
+#include <cctype>
 #include <string>
 #include <vector>
 
@@ -21,24 +22,62 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
 }
 
 /* destructor */
-LemonadeEngine::~LemonadeEngine(void) {}
+LemonadeEngine::~LemonadeEngine(void) { hideLookupTable(); }
 
 gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
                                          guint modifiers) {
-  gboolean retval = FALSE;
 
   if (contentIsPassword())
-    return retval;
+    return FALSE;
 
   if (modifiers & IBUS_RELEASE_MASK) {
     return FALSE;
   }
 
-  std::string translation = "Translation";
+  // We are skipping any modifiers. Our workflow is simple. Ctrl-Enter key is
+  // send.
+  if (modifiers & IBUS_CONTROL_MASK && keyval == IBUS_Return) {
+    g::Text text(buffer_);
+    commitText(text);
+    buffer_.clear();
+    return TRUE;
+  }
+
+  // If ctrl modifier or something is else, we let it pass
+  if (modifiers & IBUS_CONTROL_MASK) {
+    return FALSE;
+  }
+
+  gboolean retval = FALSE;
+  switch (keyval) {
+  case IBUS_Return: {
+    buffer_ += "\n";
+    g::Text text(buffer_);
+    commitText(text);
+    buffer_.clear();
+    retval = TRUE;
+  } break;
+  case IBUS_BackSpace: {
+    if (!buffer_.empty()) {
+      buffer_.pop_back();
+    }
+    retval = TRUE;
+  } break;
+
+  default: {
+    if (isprint(static_cast<unsigned char>(keyval))) {
+      buffer_ += static_cast<unsigned char>(keyval);
+      retval = TRUE;
+    } else {
+      retval = FALSE;
+    }
+  } break;
+  }
+
+  std::string translation = "Translation here";
   std::vector<std::string> entries = {translation, buffer_};
   g::LookupTable table = generateLookupTable(entries);
   updateLookupTable(table, /*visible=*/!entries.empty());
-  retval = TRUE;
 
   showLookupTable();
 
