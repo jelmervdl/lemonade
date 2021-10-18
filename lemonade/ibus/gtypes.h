@@ -11,6 +11,36 @@ public:
 
   ~Pointer(void) { set(NULL); }
 
+  Pointer<T> &operator=(T *p) {
+    set(p);
+    return *this;
+  }
+
+  // Note: Forbid operations on something declared const.
+  Pointer<T> &operator=(const Pointer<T> &p) = delete; /*{
+    set(p.pointer_);
+    return *this;
+  }
+  */
+
+  Pointer<T>(Pointer<T> &&p) {
+    set(p.pointer_);
+    p.set(NULL);
+  }
+
+  Pointer<T>(const Pointer<T> &p) = delete;
+
+  const T *operator->(void) const { return pointer_; }
+
+  T *operator->(void) { return pointer_; }
+
+  operator T *(void) const { return pointer_; }
+
+  operator gboolean(void) const { return pointer_ != NULL; }
+
+private:
+  T *pointer_;
+
   void set(T *p) {
     if (pointer_) {
       g_object_unref(pointer_);
@@ -25,31 +55,6 @@ public:
       g_object_ref_sink(p);
     }
   }
-
-  Pointer<T> &operator=(T *p) {
-    set(p);
-    return *this;
-  }
-
-  // Note: Forbid operations on something declared const.
-  Pointer<T> &operator=(const Pointer<T> &p) = delete; /*{
-    set(p.pointer_);
-    return *this;
-  }
-  */
-
-  Pointer<T>(const Pointer<T> &p) = delete;
-
-  const T *operator->(void)const { return pointer_; }
-
-  T *operator->(void) { return pointer_; }
-
-  operator T *(void)const { return pointer_; }
-
-  operator gboolean(void) const { return pointer_ != NULL; }
-
-private:
-  T *pointer_;
 };
 
 class Object {
@@ -58,7 +63,7 @@ protected:
     g_assert(get<GObject *>() != NULL);
   }
 
-  operator GObject *(void)const { return pointer_; }
+  operator GObject *(void) const { return pointer_; }
 
   template <typename T> T *get(void) const { return (T *)(GObject *)pointer_; }
 
@@ -82,7 +87,7 @@ public:
 
   const gchar *text(void) const { return get<IBusText>()->text; }
 
-  operator IBusText *(void)const { return get<IBusText>(); }
+  operator IBusText *(void) const { return get<IBusText>(); }
 };
 
 class StaticText : public Text {
@@ -94,7 +99,7 @@ public:
 
   StaticText(gunichar ch) : Text(ch) {}
 
-  operator IBusText *(void)const { return Text::operator IBusText *(); }
+  operator IBusText *(void) const { return Text::operator IBusText *(); }
 };
 
 class LookupTable : Object {
@@ -136,7 +141,7 @@ public:
     return ibus_lookup_table_get_candidate(*this, index);
   }
 
-  operator IBusLookupTable *(void)const { return get<IBusLookupTable>(); }
+  operator IBusLookupTable *(void) const { return get<IBusLookupTable>(); }
 };
 
 class Property : public Object {
@@ -175,7 +180,7 @@ public:
 
   void setTooltip(const gchar *text) { setTooltip(Text(text)); }
 
-  operator IBusProperty *(void)const { return get<IBusProperty>(); }
+  operator IBusProperty *(void) const { return get<IBusProperty>(); }
 };
 
 class PropList : Object {
@@ -186,7 +191,7 @@ public:
     ibus_prop_list_append(get<IBusPropList>(), prop);
   }
 
-  operator IBusPropList *(void)const { return get<IBusPropList>(); }
+  operator IBusPropList *(void) const { return get<IBusPropList>(); }
 };
 
 } // namespace g
